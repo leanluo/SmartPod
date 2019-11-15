@@ -88,11 +88,11 @@ void (*DW1000RangingClass::_handleInactiveDevice)(DW1000Device *) = 0;
 // setup phase
 byte DW1000RangingClass::_firstTanchorShortAddress[2];
 byte DW1000RangingClass::_secondTanchorShortAddress[2];
-float DW1000RangingClass::_distanceAB;
-float DW1000RangingClass::_distanceAC;
-float DW1000RangingClass::_distanceBC;
-float DW1000RangingClass::_x2;
-float DW1000RangingClass::_y2;
+float DW1000RangingClass::_distanceAB = 0;
+float DW1000RangingClass::_distanceAC = 0;
+float DW1000RangingClass::_distanceBC = 0;
+float DW1000RangingClass::_x2 = 0;
+float DW1000RangingClass::_y2 = 0;
 
 /* ###########################################################################
  * #### Init and end #######################################################
@@ -698,7 +698,7 @@ void DW1000RangingClass::loop()
 								}
 								if (_firstTanchorShortAddress[0] == myDistantDevice->getByteShortAddress()[0]
 								&& _firstTanchorShortAddress[1] == myDistantDevice->getByteShortAddress()[1]) {
-									_distanceAB = range;
+									_distanceAB += range/SETUP_ROUNDS;
 								}
 								Serial.print("AB:");Serial.print(_distanceAB);Serial.print("\t");
 								Serial.print("AC:");Serial.print(_distanceAC);Serial.print("\t");
@@ -715,9 +715,9 @@ void DW1000RangingClass::loop()
 								if (_secondTanchorShortAddress[0] == myDistantDevice->getByteShortAddress()[0]
 								&& _secondTanchorShortAddress[1] == myDistantDevice->getByteShortAddress()[1]) {
 									if (shortAddress[0] == _currentShortAddress[0] && shortAddress[1] == _currentShortAddress[1]) {
-										_distanceAC = range;
+										_distanceAC += range/SETUP_ROUNDS;
 									} else if (shortAddress[0] == _firstTanchorShortAddress[0] && shortAddress[1] == _firstTanchorShortAddress[1]) {
-										_distanceBC = range;
+										_distanceBC += range/SETUP_ROUNDS;
 									}
 									if (i == numberDevices-1) {
 										_x2 = (_distanceAB*_distanceAB+_distanceAC*_distanceAC-_distanceBC*_distanceBC)/_distanceAB/2;
@@ -782,7 +782,7 @@ void DW1000RangingClass::loop()
 
 								float distance = myTOF.getAsMeters();
 								float pRx = myDistantDevice->getRXPower();
-								if (pRx > -82.5) {
+								if (pRx > -86) {
 									distance = (distance-0.1291)/1.0535;		// linea directa
 								} else {
 									distance = (distance-0.6876)/1.1023;		// tapando con el pecho
