@@ -720,8 +720,11 @@ void DW1000RangingClass::loop()
 										_distanceBC += range/SETUP_ROUNDS;
 									}
 									if (i == numberDevices-1) {
-										_x2 = (_distanceAB*_distanceAB+_distanceAC*_distanceAC-_distanceBC*_distanceBC)/_distanceAB/2;
-										_y2 = sqrt(_distanceAC*_distanceAC-_x2*_x2);
+										counterForSetup++;
+										if (counterForSetup == SETUP_ROUNDS) {
+											_x2 = (_distanceAB*_distanceAB+_distanceAC*_distanceAC-_distanceBC*_distanceBC)/_distanceAB/2;
+											_y2 = sqrt(_distanceAC*_distanceAC-_x2*_x2);
+										}
 									}
 								}
 								Serial.print("AB:");Serial.print(_distanceAB);Serial.print("\t");
