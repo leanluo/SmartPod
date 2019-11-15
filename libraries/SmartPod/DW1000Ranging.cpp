@@ -986,7 +986,6 @@ void DW1000RangingClass::timerTick()
 			_expectedMsgId = POLL_ACK;
 			//send a prodcast poll
 			transmitPoll(nullptr);
-			Serial.println("Send poll");
 		}
 	}
 	else if (counterForBlink == 0)
@@ -994,7 +993,6 @@ void DW1000RangingClass::timerTick()
 		if (_type == TAG || _type == TANCHOR)
 		{
 			transmitBlink();
-			Serial.println("Send blink");
 		}
 		//check for inactive devices if we are a TAG or ANCHOR
 		checkForInactiveDevices();
