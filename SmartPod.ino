@@ -46,14 +46,14 @@ void loop()
 
 void newRange()
 {
-	Serial.print("from: ");
-	Serial.print(DW1000Ranging.getDistantDevice()->getShortAddress(), HEX);
-	Serial.print("\t Range: ");
-	Serial.print(DW1000Ranging.getDistantDevice()->getRange());
-	Serial.print(" m");
-	Serial.print("\t RX power: ");
-	Serial.print(DW1000Ranging.getDistantDevice()->getRXPower());
-	Serial.println(" dBm");
+	// Serial.print("from: ");
+	// Serial.print(DW1000Ranging.getDistantDevice()->getShortAddress(), HEX);
+	// Serial.print("\t Range: ");
+	// Serial.print(DW1000Ranging.getDistantDevice()->getRange());
+	// Serial.print(" m");
+	// Serial.print("\t RX power: ");
+	// Serial.print(DW1000Ranging.getDistantDevice()->getRXPower());
+	// Serial.println(" dBm");
 }
 
 void newBlink(DW1000Device *device)

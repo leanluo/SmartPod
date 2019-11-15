@@ -918,7 +918,10 @@ void DW1000RangingClass::trillaterate(float AT, float BT, float CT) {
 	Serial.print("CY:"); Serial.print(_y2); Serial.print(",");
 	Serial.print("AT:"); Serial.print(AT); Serial.print(",");
 	Serial.print("BT:"); Serial.print(BT); Serial.print(",");
-	Serial.print("CT:"); Serial.println(CT);
+	Serial.print("CT:"); Serial.print(CT); Serial.print(",");
+	Serial.print("XT:"); Serial.print(XT); Serial.print(",");
+	Serial.print("YT:"); Serial.println(YT);
+
 }
 
 void DW1000RangingClass::useRangeFilter(boolean enabled)
