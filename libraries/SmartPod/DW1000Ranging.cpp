@@ -29,6 +29,7 @@
 #include "DW1000Ranging.h"
 #include "DW1000Device.h"
 
+
 DW1000RangingClass DW1000Ranging;
 
 //other devices we are going to communicate with which are on our network:
@@ -93,6 +94,9 @@ float DW1000RangingClass::_distanceAC = 0;
 float DW1000RangingClass::_distanceBC = 0;
 float DW1000RangingClass::_x2 = 0;
 float DW1000RangingClass::_y2 = 0;
+float DW1000RangingClass::_XT = 0;
+float DW1000RangingClass::_YT = 0;
+float DW1000RangingClass::_angle = 0;
 
 /* ###########################################################################
  * #### Init and end #######################################################
@@ -648,6 +652,7 @@ void DW1000RangingClass::loop()
 					//we receive a POLL which is a broacast message
 					//we need to grab info about it
 					float distanceAT, distanceBT, distanceCT;	// distances between main anchor/tanchors and tag
+					float AC, BC;
 					uint16_t numberDevices = 0;
 					memcpy(&numberDevices, data + SHORT_MAC_LEN + 1, 1);
 
@@ -714,25 +719,26 @@ void DW1000RangingClass::loop()
 								}
 								if (_secondTanchorShortAddress[0] == myDistantDevice->getByteShortAddress()[0]
 								&& _secondTanchorShortAddress[1] == myDistantDevice->getByteShortAddress()[1]) {
-									if ( i == 0) {
-										counterForSetup++;
-									}
 									if (shortAddress[0] == _currentShortAddress[0] && shortAddress[1] == _currentShortAddress[1]) {
-										_distanceAC = (_distanceAC * (counterForSetup-1) + range)/counterForSetup;
+										AC = range;
 									} else if (shortAddress[0] == _firstTanchorShortAddress[0] && shortAddress[1] == _firstTanchorShortAddress[1]) {
-										_distanceBC = (_distanceBC * (counterForSetup-1) + range)/counterForSetup;
+										BC = range;
 									}
 									if (i == numberDevices-1) {
+										if ( AC && BC ) {
+											counterForSetup++;
+											_distanceAC = (_distanceAC * (counterForSetup-1) + AC)/counterForSetup;
+											_distanceBC = (_distanceBC * (counterForSetup-1) + BC)/counterForSetup;
+										}
 										_x2 = (_distanceAB*_distanceAB+_distanceAC*_distanceAC-_distanceBC*_distanceBC)/_distanceAB/2;
 										_y2 = sqrt(_distanceAC*_distanceAC-_x2*_x2);
 									}
 								}
+								Serial.print("newAC:");Serial.print(AC);Serial.print("\t");
+								Serial.print("newBC:");Serial.print(BC);Serial.print("\t");
 								Serial.print("AB:");Serial.print(_distanceAB);Serial.print("\t");
 								Serial.print("AC:");Serial.print(_distanceAC);Serial.print("\t");
 								Serial.print("BC:");Serial.println(_distanceBC);
-								Serial.print("AT:");Serial.print(distanceAT);Serial.print("\t");
-								Serial.print("BT:");Serial.print(distanceBT);Serial.print("\t");
-								Serial.print("CT:");Serial.println(distanceCT);
 							}
 							//If there are 3 devices, we are on the ABCT trillateration phase (3 anchors + tag)
 							else if (numberDevices == 3) {
@@ -912,10 +918,21 @@ void DW1000RangingClass::trillaterate(float AT, float BT, float CT) {
 	float A3 = -2*_x2;
 	float B3 = -2*_y2;
 	float C3 = _x2*_x2+_y2*_y2-CT*CT;
+	float newAngle = 0;
 
 	float XT = (C1-C2)/A2;
 	float YT = ((C2-C3)*A2-(C2-C1)*(A2-A3))/(A2*B3);
 
+
+	_XT = XT;
+	_YT = YT;
+
+	
+   	newAngle = float(180*atan2(YT,XT)/PI);
+
+	if ( abs(_angle - newAngle) > 3) {
+		_angle = newAngle;
+	}
 	Serial.print("BX:"); Serial.print(_distanceAB); Serial.print(",");
 	Serial.print("CX:"); Serial.print(_x2); Serial.print(",");
 	Serial.print("CY:"); Serial.print(_y2); Serial.print(",");
@@ -923,8 +940,20 @@ void DW1000RangingClass::trillaterate(float AT, float BT, float CT) {
 	Serial.print("BT:"); Serial.print(BT); Serial.print(",");
 	Serial.print("CT:"); Serial.print(CT); Serial.print(",");
 	Serial.print("XT:"); Serial.print(XT); Serial.print(",");
-	Serial.print("YT:"); Serial.println(YT);
+	Serial.print("YT:"); Serial.print(YT); Serial.print(",");
+	Serial.print("angle:"); Serial.println(_angle);
 
+
+}
+
+float DW1000RangingClass::getXT()
+{
+	return _XT;
+}
+
+float DW1000RangingClass::getYT()
+{
+	return _YT;
 }
 
 void DW1000RangingClass::useRangeFilter(boolean enabled)

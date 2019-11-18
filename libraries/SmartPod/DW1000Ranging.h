@@ -33,6 +33,7 @@
 #include "KalmanFilter.h"
 
 // messages used in the ranging protocol
+#define PI 3.1415926535897932384626433832795
 #define POLL 0
 #define POLL_ACK 1
 #define RANGE 2
@@ -159,6 +160,10 @@ private:
 	static float		_x1;								// Coordinate X of B
 	static float		_x2;								// Coordinate X of C
 	static float		_y2;								// Coordinate Y of C
+	static float		_XT;								// Coordinate X of Tag
+	static float		_YT;								// Coordinate Y of Tag
+
+	static float		_angle;								// Angle of the camera
 
 	//Handlers:
 	static void (* _handleNewRange)(void);
@@ -229,6 +234,9 @@ private:
 	//methods for range computation
 	static void computeRangeAsymmetric(DW1000Device* myDistantDevice, DW1000Time* myTOF);
 	static void trillaterate(float AT, float BT, float CT);
+
+	static float getXT();
+	static float getYT();
 	
 	static void timerTick();
 	
