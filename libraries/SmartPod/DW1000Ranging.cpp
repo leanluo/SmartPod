@@ -714,17 +714,17 @@ void DW1000RangingClass::loop()
 								}
 								if (_secondTanchorShortAddress[0] == myDistantDevice->getByteShortAddress()[0]
 								&& _secondTanchorShortAddress[1] == myDistantDevice->getByteShortAddress()[1]) {
+									if ( i == 0) {
+										counterForSetup++;
+									}
 									if (shortAddress[0] == _currentShortAddress[0] && shortAddress[1] == _currentShortAddress[1]) {
-										_distanceAC += range/SETUP_ROUNDS;
+										_distanceAC = (_distanceAC * (counterForSetup-1) + range)/counterForSetup;
 									} else if (shortAddress[0] == _firstTanchorShortAddress[0] && shortAddress[1] == _firstTanchorShortAddress[1]) {
-										_distanceBC += range/SETUP_ROUNDS;
+										_distanceBC = (_distanceBC * (counterForSetup-1) + range)/counterForSetup;
 									}
 									if (i == numberDevices-1) {
-										counterForSetup++;
-										if (counterForSetup == SETUP_ROUNDS) {
-											_x2 = (_distanceAB*_distanceAB+_distanceAC*_distanceAC-_distanceBC*_distanceBC)/_distanceAB/2;
-											_y2 = sqrt(_distanceAC*_distanceAC-_x2*_x2);
-										}
+										_x2 = (_distanceAB*_distanceAB+_distanceAC*_distanceAC-_distanceBC*_distanceBC)/_distanceAB/2;
+										_y2 = sqrt(_distanceAC*_distanceAC-_x2*_x2);
 									}
 								}
 								Serial.print("AB:");Serial.print(_distanceAB);Serial.print("\t");

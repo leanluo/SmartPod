@@ -33,10 +33,10 @@ void setup()
 	//DW1000Ranging.startAsTanchor("11:11:22:EA:82:60:3B:9C", DW1000.MODE_LONGDATA_RANGE_ACCURACY, false);
 
 	/*********************			ANCHOR 2				**************************************/
-	DW1000Ranging.startAsTanchor("22:22:22:EA:82:60:3B:9C", DW1000.MODE_LONGDATA_RANGE_ACCURACY, false);
+	//DW1000Ranging.startAsTanchor("22:22:22:EA:82:60:3B:9C", DW1000.MODE_LONGDATA_RANGE_ACCURACY, false);
 
 	/*********************			MAIN ANCHOR				**************************************/
-	//DW1000Ranging.startAsManchor("00:00:22:EA:82:60:3B:9C", DW1000.MODE_LONGDATA_RANGE_ACCURACY, false);
+	DW1000Ranging.startAsManchor("00:00:22:EA:82:60:3B:9C", DW1000.MODE_LONGDATA_RANGE_ACCURACY, false);
 }
 
 void loop()

@@ -1,7 +1,0 @@
-{
-    "board": "arduino:avr:pro",
-    "configuration": "cpu=16MHzatmega328",
-    "port": "COM7",
-    "programmer": "AVRISP mkII",
-    "sketch": "SmartPod.ino"
-}
