@@ -31,6 +31,8 @@
 #include "DW1000Device.h" 
 #include "DW1000Mac.h"
 #include "KalmanFilter.h"
+#include "EEPROMDriver.h"
+
 
 // messages used in the ranging protocol
 #define PI 3.1415926535897932384626433832795
@@ -65,6 +67,14 @@
 #define ANCHOR 1
 #define TANCHOR 2
 #define MANCHOR 3
+
+// Address de la posicion de memoria en donde esta el flag de calibracion o not
+#define CALIBRATION_FLAG 0
+#define EEPROM_AB 4
+#define EEPROM_AC 8
+#define EEPROM_BC 12
+#define EEPROM_ADDRESS_B 16
+#define EEPROM_ADDRESS_C 20
 
 //default timer delay
 #define DEFAULT_TIMER_DELAY 80

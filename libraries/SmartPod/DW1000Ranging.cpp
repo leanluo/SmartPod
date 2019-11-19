@@ -235,6 +235,16 @@ void DW1000RangingClass::startAsManchor(char address[], const byte mode[], const
 	//general start:
 	generalStart();
 
+	if (EEPROM_readFloat(CALIBRATION_FLAG) == 1) {
+		_distanceAB = EEPROM_readFloat(EEPROM_AB);
+		_distanceAC = EEPROM_readFloat(EEPROM_AC);
+		_distanceBC = EEPROM_readFloat(EEPROM_BC);
+		_firstTanchorShortAddress[0] = EEPROM.read(EEPROM_ADDRESS_B);
+		_firstTanchorShortAddress[1] = EEPROM.read(EEPROM_ADDRESS_B+1);
+		_secondTanchorShortAddress[0] = EEPROM.read(EEPROM_ADDRESS_C);
+		_secondTanchorShortAddress[1] = EEPROM.read(EEPROM_ADDRESS_C+1);
+	}
+
 	//defined type as anchor
 	_type = MANCHOR;
 
@@ -302,7 +312,11 @@ void DW1000RangingClass::startAsTanchor(char address[], const byte mode[], const
 
 	generalStart();
 	//defined type as tanchor (anchor that starts as tag)
-	_type = TANCHOR;
+	if(EEPROM_readFloat(CALIBRATION_FLAG) == 0) {
+		_type = TANCHOR;
+	} else {
+		_type = ANCHOR;
+	}
 
 	Serial.println("### ANCHOR (TEMPORARY TAG) ###");
 }
@@ -742,6 +756,16 @@ void DW1000RangingClass::loop()
 							}
 							//If there are 3 devices, we are on the ABCT trillateration phase (3 anchors + tag)
 							else if (numberDevices == 3) {
+								if (EEPROM_readFloat(CALIBRATION_FLAG) == 0) {
+									EEPROM_writeFloat(EEPROM_AB, _distanceAB);
+									EEPROM_writeFloat(EEPROM_AC, _distanceAC);
+									EEPROM_writeFloat(EEPROM_BC, _distanceBC);
+									EEPROM.write(EEPROM_ADDRESS_B, _firstTanchorShortAddress[0]);
+									EEPROM.write(EEPROM_ADDRESS_B + 1, _firstTanchorShortAddress[1]);
+									EEPROM.write(EEPROM_ADDRESS_C, _secondTanchorShortAddress[0]);
+									EEPROM.write(EEPROM_ADDRESS_C + 1, _secondTanchorShortAddress[1]);
+									EEPROM_writeFloat(CALIBRATION_FLAG, 1);
+								}
 								if (shortAddress[0] == _currentShortAddress[0] && shortAddress[1] == _currentShortAddress[1]) {
 									distanceAT = range;
 								} else if (shortAddress[0] == _firstTanchorShortAddress[0] && shortAddress[1] == _firstTanchorShortAddress[1]) {
@@ -887,6 +911,7 @@ void DW1000RangingClass::loop()
 					if (_type == TANCHOR) {
 						counterForSetup++;
 						if (counterForSetup == SETUP_ROUNDS) {
+							EEPROM_writeFloat(CALIBRATION_FLAG, 1);
 							_type = ANCHOR;
 							Serial.println("Tag (tanchor) to anchor transition");
 						}
