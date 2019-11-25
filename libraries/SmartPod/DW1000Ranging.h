@@ -123,7 +123,9 @@ public:
 	
 	static void attachInactiveDevice(void (* handleInactiveDevice)(DW1000Device*)) { _handleInactiveDevice = handleInactiveDevice; };
 	
-	
+	//For stepper:
+	static float getXT();
+	static float getYT();
 	
 	static DW1000Device* getDistantDevice();
 	static DW1000Device* searchDistantDevice(byte shortAddress[]);
@@ -234,9 +236,6 @@ private:
 	//methods for range computation
 	static void computeRangeAsymmetric(DW1000Device* myDistantDevice, DW1000Time* myTOF);
 	static void trillaterate(float AT, float BT, float CT);
-
-	static float getXT();
-	static float getYT();
 	
 	static void timerTick();
 	

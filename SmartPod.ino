@@ -7,16 +7,23 @@
  */
 #include <SPI.h>
 #include "DW1000Ranging.h"
+#include "Stepper.h"
+
+#define STEP_PIN 3
+#define DIR_PIN 4
 
 // connection pins
 const uint8_t PIN_RST = 9; // reset pin
 const uint8_t PIN_IRQ = 2; // irq pin
 const uint8_t PIN_SS = SS; // spi select pin
+float XT, YT;
 
 void setup()
 {
 	Serial.begin(115200);
 	delay(1000);
+	//init stepper
+	initStepper(STEP_PIN, DIR_PIN);
 	//init the configuration
 	DW1000Ranging.initCommunication(PIN_RST, PIN_SS, PIN_IRQ); //Reset, CS, IRQ pin
 	//define the sketch as anchor. It will be great to dynamically change the type of module
@@ -42,6 +49,14 @@ void setup()
 void loop()
 {
 	DW1000Ranging.loop();
+
+	// Only for Main Anchor
+	XT = DW1000Ranging.getXT();
+	YT = DW1000Ranging.getYT();
+	//XT = 1.0;
+	//YT = 1.0;
+	addSteps(XT, YT);
+	moveStepper();
 }
 
 void newRange()
