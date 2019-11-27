@@ -18,16 +18,19 @@ const uint8_t PIN_IRQ = 2; // irq pin
 const uint8_t PIN_SS = SS; // spi select pin
 float XT, YT;
 
+/*
+	TODO:
+	 - Hacer que cuando el CALIBRATION_FLAG este en 1 y haya menos cantidad dispositivos conectados, se prendan mensajes de error.
+*/
 void setup()
 {
 	Serial.begin(115200);
 	delay(1000);
-<<<<<<< HEAD
-	EEPROM_writeFloat(0,0.0);
-=======
+	Serial.print("Calibration Flag post reset: ");
+	Serial.println(EEPROM_readFloat(CALIBRATION_FLAG));
+	EEPROM_writeFloat(CALIBRATION_FLAG,0.0);
 	//init stepper
 	initStepper(STEP_PIN, DIR_PIN);
->>>>>>> debugging
 	//init the configuration
 	DW1000Ranging.initCommunication(PIN_RST, PIN_SS, PIN_IRQ); //Reset, CS, IRQ pin
 	//define the sketch as anchor. It will be great to dynamically change the type of module

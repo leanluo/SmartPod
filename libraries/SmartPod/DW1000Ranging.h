@@ -71,8 +71,8 @@
 // Address de la posicion de memoria en donde esta el flag de calibracion o not
 #define CALIBRATION_FLAG 0
 #define EEPROM_AB 4
-#define EEPROM_AC 8
-#define EEPROM_BC 12
+#define EEPROM_CX 8
+#define EEPROM_CY 12
 #define EEPROM_ADDRESS_B 16
 #define EEPROM_ADDRESS_C 20
 
