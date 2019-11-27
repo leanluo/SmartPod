@@ -94,7 +94,7 @@ float DW1000RangingClass::_distanceAC = 0;
 float DW1000RangingClass::_distanceBC = 0;
 float DW1000RangingClass::_x2 = 0;
 float DW1000RangingClass::_y2 = 0;
-float DW1000RangingClass::_XT = 0;
+float DW1000RangingClass::_XT = 2;
 float DW1000RangingClass::_YT = 0;
 float DW1000RangingClass::_angle = 0;
 
