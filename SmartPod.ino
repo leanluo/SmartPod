@@ -28,7 +28,7 @@ void setup()
 	delay(1000);
 	Serial.print("Calibration Flag post reset: ");
 	Serial.println(EEPROM_readFloat(CALIBRATION_FLAG));
-	EEPROM_writeFloat(CALIBRATION_FLAG,0.0);
+	//EEPROM_writeFloat(CALIBRATION_FLAG,0.0);
 	//init stepper
 	initStepper(STEP_PIN, DIR_PIN);
 	//init the configuration
@@ -60,8 +60,8 @@ void loop()
 	// Only for Main Anchor
 	XT = DW1000Ranging.getXT();
 	YT = DW1000Ranging.getYT();
-	//XT = 1.0;
-	//YT = 1.0;
+	// XT = 0.0;
+	// YT = 2.5;
 	addSteps(XT, YT);
 	moveStepper();
 }

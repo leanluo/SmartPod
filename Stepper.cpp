@@ -1,11 +1,14 @@
 #include "Stepper.h"
 #include "Arduino.h"
 
-uint8_t stepPosition = 0;
-int8_t stepsRemaining = 0;
+uint16_t stepPosition = 0;
+int16_t stepsRemaining = 0;
 uint8_t _stepPin;
 uint8_t _dirPin;
-unsigned long lastAction;
+uint16_t stepTH1 = 0;
+uint16_t stepTH2 = 0;
+uint16_t shortDelay = 0;
+uint16_t longDelay = 0;
 
 // Initialize stepper pins
 void initStepper(uint8_t stepPin, uint8_t dirPin)
@@ -23,47 +26,78 @@ void addSteps(float XT, float YT)
     if (newAngle < 0) {
         newAngle = newAngle+360;
     }
-    uint8_t newStepPos = uint8_t(newAngle/STEP_ANGLE);
+    uint16_t newStepPos = uint16_t(newAngle/STEP_ANGLE);
     int stepDif = newStepPos - stepPosition;
-    if (stepDif < -100) {
-        stepDif += 200;
-    } else if ( stepDif > 100) {
-        stepDif -= 200;
+    if (stepDif < -180/STEP_ANGLE) {
+        stepDif += 360/STEP_ANGLE;
+    } else if ( stepDif > 180/STEP_ANGLE) {
+        stepDif -= 360/STEP_ANGLE;
     }
 
-    if (abs(stepDif) > MIN_STEP_DIF) {
+    if (abs(stepDif) > MIN_ANGLE_DIF/STEP_ANGLE) {
         stepsRemaining += stepDif;
         stepPosition = newStepPos;
+        calculateDelays();
+        calculateThresholds();
         if (stepPosition < 0) {
-            stepPosition += 200;
+            stepPosition += 360/STEP_ANGLE;
         }
-        Serial.print("Dif:");
-        Serial.print(stepDif);
-        Serial.print("\tPos:");
-        Serial.println(stepPosition);
+        // Serial.print("Dif:");
+        // Serial.print(stepDif);
+        // Serial.print("\tPos:");
+        // Serial.println(stepPosition);
     }
 }
 
 // Do the remaining steps
 void moveStepper()
 {
-    if (stepsRemaining > 0) {
+    unsigned int delay;
+
+    if (stepsRemaining > 0) {    
+        if (stepsRemaining > stepTH1 && stepsRemaining < stepTH2) {
+            delay = shortDelay;     // Fast
+        } else {
+            delay = longDelay;      // Slow
+        }
         digitalWrite(_dirPin, LOW);
-        delayMicroseconds(MICRO_DELAY);
+        delayMicroseconds(delay);
         digitalWrite(_stepPin, HIGH);
-        delayMicroseconds(MICRO_DELAY);
+        delayMicroseconds(delay);
         digitalWrite(_stepPin, LOW);
         stepsRemaining--;
     } else if (stepsRemaining < 0) {
+        if (stepsRemaining < stepTH1 && stepsRemaining > stepTH2) {
+            delay = shortDelay;     // Fast
+        } else {
+            delay = longDelay;      // Slow
+        }
         digitalWrite(_dirPin, HIGH);
-        delayMicroseconds(MICRO_DELAY);
+        delayMicroseconds(delay);
         digitalWrite(_stepPin, HIGH);
-        delayMicroseconds(MICRO_DELAY);
+        delayMicroseconds(delay);
         digitalWrite(_stepPin, LOW);
         stepsRemaining++;
-    } else {
-        delayMicroseconds(MICRO_DELAY);
-        delayMicroseconds(MICRO_DELAY);
-
     }
+}
+
+void calculateDelays()
+{
+    // Asumiendo que un ciclo entero de comunicación toma 160 ms
+    shortDelay = 53333/abs(stepsRemaining);
+    longDelay = 160000/abs(stepsRemaining);
+    if (shortDelay < MIN_MICRO_DELAY)
+        shortDelay = MIN_MICRO_DELAY;
+    else if (shortDelay > MAX_MICRO_DELAY)
+        shortDelay = MAX_MICRO_DELAY;
+    if (longDelay < MIN_MICRO_DELAY)
+        longDelay = MIN_MICRO_DELAY;
+    else if (longDelay > MAX_MICRO_DELAY)
+        longDelay = MAX_MICRO_DELAY;
+}
+
+void calculateThresholds()
+{
+    stepTH1 = stepsRemaining/8;
+    stepTH2 = stepsRemaining*7/8;
 }

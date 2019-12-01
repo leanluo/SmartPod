@@ -4,9 +4,10 @@
 #include "Arduino.h"
 
 #define PI 3.1415926535897932384626433832795
-#define STEP_ANGLE 1.8
-#define MIN_STEP_DIF 3
-#define MICRO_DELAY 800
+#define STEP_ANGLE (1.8/16)     // 16th step mode
+#define MIN_ANGLE_DIF 4
+#define MIN_MICRO_DELAY 400
+#define MAX_MICRO_DELAY 2000
 
 // Initialize stepper pins
 void initStepper(uint8_t stepPin, uint8_t dirPin);
@@ -16,5 +17,11 @@ void addSteps(float XT, float YT);
 
 // Do the remaining steps
 void moveStepper();
+
+// Calculate step thresholds to switch speeds
+void calculateThresholds();
+
+// Calculate micro delays to adjust speeds
+void calculateDelays();
 
 #endif // STEPPER_H
