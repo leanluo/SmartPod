@@ -62,19 +62,28 @@
 //Threshold to switch between direct path mode and blocked path mode (in metres)
 #define MODE_THRESHOLD 0.5
 
-//sketch type (anchor or tag)
+//sketch type
 #define TAG 0
 #define ANCHOR 1
 #define TANCHOR 2
 #define MANCHOR 3
 
-// Address de la posicion de memoria en donde esta el flag de calibracion o not
+// Address de la posicion de memoria en donde estan las variables de calibracion
 #define CALIBRATION_FLAG 0
 #define EEPROM_AB 4
 #define EEPROM_CX 8
 #define EEPROM_CY 12
 #define EEPROM_ADDRESS_B 16
 #define EEPROM_ADDRESS_C 20
+
+//Estados del programa
+#define STATE_IDLE 0
+#define STATE_CALIB1 1
+#define STATE_READY1 2
+#define STATE_CALIB2 3
+#define STATE_READY2 4
+#define STATE_TRILAT 5
+#define STATE_ERROR 6
 
 //default timer delay
 #define DEFAULT_TIMER_DELAY 80
@@ -136,6 +145,9 @@ public:
 	//For stepper:
 	static float getXT();
 	static float getYT();
+
+	//State
+	static uint8_t getState();
 	
 	static DW1000Device* getDistantDevice();
 	static DW1000Device* searchDistantDevice(byte shortAddress[]);
@@ -156,6 +168,7 @@ private:
 	static int32_t      timer;
 	static int16_t      counterForBlink;
 	static int16_t      counterForSetup;
+	static uint8_t		_state;
 
 	//kalman filter
 	static KalmanFilter kalmanfilter;

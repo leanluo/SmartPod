@@ -651,7 +651,6 @@ void DW1000Class::tune() {
 				writeValueToBytes(txpower, 0x25456585L, LEN_TX_POWER);
 			} else {
 				writeValueToBytes(txpower, 0x3F3F3F3FL, LEN_TX_POWER); //original 85
-				Serial.println("Llegueaaa");
 			}
 		} else {
 			// TODO proper error/warning handling

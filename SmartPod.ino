@@ -5,12 +5,22 @@
  *  - fix deprecated convertation form string to char* startAsAnchor
  *  - give example description
  */
+#include "Stepper.h"
+#include <avr/wdt.h>
+#include "Diagnostics.h"
 #include <SPI.h>
 #include "DW1000Ranging.h"
-#include "Stepper.h"
 
 #define STEP_PIN 3
 #define DIR_PIN 4
+#define MS1_PIN 5
+#define MS2_PIN 6
+#define MS3_PIN 7
+#define BTN1_PIN A3
+#define BTN2_PIN A4
+
+#define BTN_CD 500
+
 
 // connection pins
 const uint8_t PIN_RST = 9; // reset pin
@@ -18,27 +28,21 @@ const uint8_t PIN_IRQ = 2; // irq pin
 const uint8_t PIN_SS = SS; // spi select pin
 float XT, YT;
 
-/*
-	TODO:
-	 - Hacer que cuando el CALIBRATION_FLAG este en 1 y haya menos cantidad dispositivos conectados, se prendan mensajes de error.
-*/
+unsigned long CalibrationTimer = 0;
+
 void setup()
 {
 	Serial.begin(115200);
 	delay(1000);
-	Serial.print("Calibration Flag post reset: ");
-	Serial.println(EEPROM_readFloat(CALIBRATION_FLAG));
+	// Serial.print("Calibration Flag post reset: ");
+	// Serial.println(EEPROM_readFloat(CALIBRATION_FLAG));
 	//EEPROM_writeFloat(CALIBRATION_FLAG,0.0);
-	//init stepper
-	initStepper(STEP_PIN, DIR_PIN);
+
 	//init the configuration
 	DW1000Ranging.initCommunication(PIN_RST, PIN_SS, PIN_IRQ); //Reset, CS, IRQ pin
-	//define the sketch as anchor. It will be great to dynamically change the type of module
-	DW1000Ranging.attachNewRange(newRange);
-	DW1000Ranging.attachBlinkDevice(newBlink);
-	DW1000Ranging.attachInactiveDevice(inactiveDevice);
-	//Enable the filter to smooth the distance
-	//DW1000Ranging.useRangeFilter(true);
+	// DW1000Ranging.attachNewRange(newRange);
+	// DW1000Ranging.attachBlinkDevice(newBlink);
+	// DW1000Ranging.attachInactiveDevice(inactiveDevice);
 
 	/*********************		 	TAG						**************************************/
 	//DW1000Ranging.startAsTag("33:33:22:EA:82:60:3B:9C", DW1000.MODE_LONGDATA_RANGE_ACCURACY, false);
@@ -50,20 +54,41 @@ void setup()
 	//DW1000Ranging.startAsTanchor("22:22:22:EA:82:60:3B:9C", DW1000.MODE_LONGDATA_RANGE_ACCURACY, false);
 
 	/*********************			MAIN ANCHOR				**************************************/
-	DW1000Ranging.startAsManchor("00:00:22:EA:82:60:3B:9C", DW1000.MODE_LONGDATA_RANGE_ACCURACY, false);
+	DW1000Ranging.startAsManchor("00:00:22:EA:82:60:3B:9C", DW1000.MODE_LONGDATA_RANGE_ACCURACY, false);	
+	//init stepper
+	initStepper(STEP_PIN, DIR_PIN);
+	pinMode(MS1_PIN, OUTPUT);
+	pinMode(MS2_PIN, OUTPUT);
+	pinMode(MS3_PIN, OUTPUT);
+	digitalWrite(MS1_PIN, HIGH);
+	digitalWrite(MS2_PIN, HIGH);
+	digitalWrite(MS3_PIN, HIGH);
+	//init LED pins
+	initDiagnostics();
+	//init button pins
+	pinMode(BTN1_PIN, INPUT);
+	pinMode(BTN2_PIN, INPUT);
+
+	// Serial.println(EEPROM_readFloat(EEPROM_AB));
+	// Serial.println(EEPROM_readFloat(EEPROM_CX));
+	// Serial.println(EEPROM_readFloat(EEPROM_CY));
 }
 
 void loop()
 {
 	DW1000Ranging.loop();
 
-	// Only for Main Anchor
+	// // ------------- Only for Main Anchor --------------
+	//  -- Stepper --
 	XT = DW1000Ranging.getXT();
 	YT = DW1000Ranging.getYT();
 	// XT = 0.0;
 	// YT = 2.5;
 	addSteps(XT, YT);
 	moveStepper();
+	//  -- Diagnostics --
+	updateDiagnostics(DW1000Ranging.getState());
+	pollCalibrationButton();
 }
 
 void newRange()
@@ -80,13 +105,24 @@ void newRange()
 
 void newBlink(DW1000Device *device)
 {
-	Serial.print("blink; 1 device added ! -> ");
-	Serial.print(" short:");
-	Serial.println(device->getShortAddress(), HEX);
+	// Serial.print("blink; 1 device added ! -> ");
+	// Serial.print(" short:");
+	// Serial.println(device->getShortAddress(), HEX);
 }
 
 void inactiveDevice(DW1000Device *device)
 {
-	Serial.print("delete inactive device: ");
-	Serial.println(device->getShortAddress(), HEX);
+	// Serial.print("delete inactive device: ");
+	// Serial.println(device->getShortAddress(), HEX);
+}
+
+void pollCalibrationButton()
+{
+	if (digitalRead(BTN1_PIN) == HIGH && millis()-CalibrationTimer > BTN_CD)
+	{
+		EEPROM_writeFloat(CALIBRATION_FLAG,0.0);
+		CalibrationTimer = millis();
+		Serial.print("Calibration button pressed. Timer: ");
+		Serial.println(CalibrationTimer);
+	}
 }

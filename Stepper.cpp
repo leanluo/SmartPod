@@ -9,6 +9,10 @@ uint16_t stepTH1 = 0;
 uint16_t stepTH2 = 0;
 uint16_t shortDelay = 0;
 uint16_t longDelay = 0;
+int sd1 = 0;
+int sd2 = 0;
+int sd3 = 0;
+int sd4 = 0;
 
 // Initialize stepper pins
 void initStepper(uint8_t stepPin, uint8_t dirPin)
@@ -34,6 +38,13 @@ void addSteps(float XT, float YT)
         stepDif -= 360/STEP_ANGLE;
     }
 
+    // Moving average (inercia)
+    // sd4 = sd3;
+    // sd3 = sd2;
+    // sd2 = sd1;
+    // sd1 = stepDif;
+    // stepDif = 0.6*stepDif + 0.1*sd1 + 0.1*sd2 + 0.05*sd3 + 0.05*sd4;
+
     if (abs(stepDif) > MIN_ANGLE_DIF/STEP_ANGLE) {
         stepsRemaining += stepDif;
         stepPosition = newStepPos;
@@ -44,8 +55,8 @@ void addSteps(float XT, float YT)
         }
         // Serial.print("Dif:");
         // Serial.print(stepDif);
-        // Serial.print("\tPos:");
-        // Serial.println(stepPosition);
+        Serial.print("\tPos:");
+        Serial.println(stepPosition);
     }
 }
 
@@ -54,7 +65,8 @@ void moveStepper()
 {
     unsigned int delay;
 
-    if (stepsRemaining > 0) {    
+    if (stepsRemaining > 0) {
+        //if (true) {
         if (stepsRemaining > stepTH1 && stepsRemaining < stepTH2) {
             delay = shortDelay;     // Fast
         } else {
@@ -67,6 +79,7 @@ void moveStepper()
         digitalWrite(_stepPin, LOW);
         stepsRemaining--;
     } else if (stepsRemaining < 0) {
+        //if (true) {
         if (stepsRemaining < stepTH1 && stepsRemaining > stepTH2) {
             delay = shortDelay;     // Fast
         } else {

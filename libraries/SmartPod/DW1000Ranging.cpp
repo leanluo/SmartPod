@@ -97,6 +97,7 @@ float DW1000RangingClass::_y2 = 0;
 float DW1000RangingClass::_XT = 2;
 float DW1000RangingClass::_YT = 0;
 float DW1000RangingClass::_angle = 0;
+uint8_t DW1000RangingClass::_state = STATE_IDLE;
 
 /* ###########################################################################
  * #### Init and end #######################################################
@@ -386,6 +387,10 @@ void DW1000RangingClass::removeNetworkDevices(int16_t index)
 	if (_networkDevicesNumber == 1)
 	{
 		_networkDevicesNumber = 0;
+		if (_state == STATE_CALIB1)
+			_state = STATE_READY1;
+		else if (_state == STATE_CALIB2)
+			_state = STATE_READY2;
 	}
 	else if (index == _networkDevicesNumber - 1) //if we delete the last element
 	{
@@ -721,6 +726,12 @@ void DW1000RangingClass::loop()
 								Serial.print("AT:");Serial.print(distanceAT);Serial.print("\t");
 								Serial.print("BT:");Serial.print(distanceBT);Serial.print("\t");
 								Serial.print("CT:");Serial.println(distanceCT);
+
+								//State handling
+								if(_state == STATE_IDLE)
+									_state = STATE_CALIB1;
+								else if (_state == STATE_TRILAT)
+									_state = STATE_ERROR;
 							//If there are 2 devices, we are on the ABC setup phase (main anchor + both tanchors)
 							} else if (numberDevices == 2) {
 								if (!_secondTanchorShortAddress[0] && !_secondTanchorShortAddress[1]) {
@@ -749,6 +760,12 @@ void DW1000RangingClass::loop()
 								Serial.print("AB:");Serial.print(_distanceAB);Serial.print("\t");
 								Serial.print("AC:");Serial.print(_distanceAC);Serial.print("\t");
 								Serial.print("BC:");Serial.println(_distanceBC);
+
+								//State handling
+								if(_state == STATE_READY1)
+									_state = STATE_CALIB2;
+								else if (_state == STATE_TRILAT)
+									_state = STATE_ERROR;
 							}
 							//If there are 3 devices, we are on the ABCT trillateration phase (3 anchors + tag)
 							else if (numberDevices == 3) {
@@ -779,6 +796,10 @@ void DW1000RangingClass::loop()
 								} else {
 									distanceCT = range;
 								}
+
+								//State handling
+								if(_state == STATE_READY2)
+									_state = STATE_TRILAT;
 							}
 						}
 					}
@@ -963,15 +984,15 @@ void DW1000RangingClass::trillaterate(float AT, float BT, float CT) {
 	if ( abs(_angle - newAngle) > 3) {
 		_angle = newAngle;
 	}
-	Serial.print("BX:"); Serial.print(_distanceAB); Serial.print(",");
-	Serial.print("CX:"); Serial.print(_x2); Serial.print(",");
-	Serial.print("CY:"); Serial.print(_y2); Serial.print(",");
-	Serial.print("AT:"); Serial.print(AT); Serial.print(",");
-	Serial.print("BT:"); Serial.print(BT); Serial.print(",");
-	Serial.print("CT:"); Serial.print(CT); Serial.print(",");
-	Serial.print("XT:"); Serial.print(XT); Serial.print(",");
-	Serial.print("YT:"); Serial.print(YT); Serial.print(",");
-	Serial.print("angle:"); Serial.println(_angle);
+	// Serial.print("BX:"); Serial.print(_distanceAB); Serial.print(",");
+	// Serial.print("CX:"); Serial.print(_x2); Serial.print(",");
+	// Serial.print("CY:"); Serial.print(_y2); Serial.print(",");
+	// Serial.print("AT:"); Serial.print(AT); Serial.print(",");
+	// Serial.print("BT:"); Serial.print(BT); Serial.print(",");
+	// Serial.print("CT:"); Serial.print(CT); Serial.print(",");
+	// Serial.print("XT:"); Serial.print(XT); Serial.print(",");
+	// Serial.print("YT:"); Serial.print(YT); Serial.print(",");
+	// Serial.print("angle:"); Serial.println(_angle);
 
 
 }
@@ -984,6 +1005,11 @@ float DW1000RangingClass::getXT()
 float DW1000RangingClass::getYT()
 {
 	return _YT;
+}
+
+uint8_t DW1000RangingClass::getState()
+{
+	return _state;
 }
 
 void DW1000RangingClass::useRangeFilter(boolean enabled)
