@@ -69,9 +69,9 @@ void setup()
 	pinMode(BTN1_PIN, INPUT);
 	pinMode(BTN2_PIN, INPUT);
 
-	// Serial.println(EEPROM_readFloat(EEPROM_AB));
-	// Serial.println(EEPROM_readFloat(EEPROM_CX));
-	// Serial.println(EEPROM_readFloat(EEPROM_CY));
+	Serial.println(EEPROM_readFloat(EEPROM_AB));
+	Serial.println(EEPROM_readFloat(EEPROM_CX));
+	Serial.println(EEPROM_readFloat(EEPROM_CY));
 }
 
 void loop()
@@ -121,8 +121,8 @@ void pollCalibrationButton()
 	if (digitalRead(BTN1_PIN) == HIGH && millis()-CalibrationTimer > BTN_CD)
 	{
 		EEPROM_writeFloat(CALIBRATION_FLAG,0.0);
-		CalibrationTimer = millis();
-		Serial.print("Calibration button pressed. Timer: ");
-		Serial.println(CalibrationTimer);
+		// CalibrationTimer = millis();
+		// Serial.print("Calibration button pressed. Timer: ");
+		// Serial.println(CalibrationTimer);
 	}
 }
