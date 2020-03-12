@@ -38,13 +38,6 @@ void addSteps(float XT, float YT)
         stepDif -= 360/STEP_ANGLE;
     }
 
-    // Moving average (inercia)
-    // sd4 = sd3;
-    // sd3 = sd2;
-    // sd2 = sd1;
-    // sd1 = stepDif;
-    // stepDif = 0.6*stepDif + 0.1*sd1 + 0.1*sd2 + 0.05*sd3 + 0.05*sd4;
-
     if (abs(stepDif) > MIN_ANGLE_DIF/STEP_ANGLE) {
         stepsRemaining += stepDif;
         stepPosition = newStepPos;
@@ -53,10 +46,6 @@ void addSteps(float XT, float YT)
         if (stepPosition < 0) {
             stepPosition += 360/STEP_ANGLE;
         }
-        // Serial.print("Dif:");
-        // Serial.print(stepDif);
-        Serial.print("\tPos:");
-        Serial.println(stepPosition);
     }
 }
 

@@ -84,6 +84,7 @@
 #define STATE_READY2 4
 #define STATE_TRILAT 5
 #define STATE_ERROR 6
+#define STATE_PRECALIB 7
 
 //default timer delay
 #define DEFAULT_TIMER_DELAY 80

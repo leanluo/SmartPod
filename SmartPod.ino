@@ -1,10 +1,3 @@
-/**
- * 
- * @todo
- *  - move strings to flash (less RAM consumption)
- *  - fix deprecated convertation form string to char* startAsAnchor
- *  - give example description
- */
 #include "Stepper.h"
 #include <avr/wdt.h>
 #include "Diagnostics.h"
@@ -34,15 +27,9 @@ void setup()
 {
 	Serial.begin(115200);
 	delay(1000);
-	// Serial.print("Calibration Flag post reset: ");
-	// Serial.println(EEPROM_readFloat(CALIBRATION_FLAG));
-	//EEPROM_writeFloat(CALIBRATION_FLAG,0.0);
 
 	//init the configuration
 	DW1000Ranging.initCommunication(PIN_RST, PIN_SS, PIN_IRQ); //Reset, CS, IRQ pin
-	// DW1000Ranging.attachNewRange(newRange);
-	// DW1000Ranging.attachBlinkDevice(newBlink);
-	// DW1000Ranging.attachInactiveDevice(inactiveDevice);
 
 	/*********************		 	TAG						**************************************/
 	//DW1000Ranging.startAsTag("33:33:22:EA:82:60:3B:9C", DW1000.MODE_LONGDATA_RANGE_ACCURACY, false);
@@ -121,7 +108,7 @@ void pollCalibrationButton()
 	if (digitalRead(BTN1_PIN) == HIGH && millis()-CalibrationTimer > BTN_CD)
 	{
 		EEPROM_writeFloat(CALIBRATION_FLAG,0.0);
-		// CalibrationTimer = millis();
+		CalibrationTimer = millis();
 		// Serial.print("Calibration button pressed. Timer: ");
 		// Serial.println(CalibrationTimer);
 	}
