@@ -149,6 +149,7 @@ public:
 
 	//State
 	static uint8_t getState();
+	static void resetState();
 	
 	static DW1000Device* getDistantDevice();
 	static DW1000Device* searchDistantDevice(byte shortAddress[]);

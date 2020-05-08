@@ -994,6 +994,11 @@ uint8_t DW1000RangingClass::getState()
     return _state;
 }
 
+void DW1000RangingClass::resetState()
+{
+    _state = STATE_IDLE;
+}
+
 void DW1000RangingClass::useRangeFilter(boolean enabled)
 {
     _useRangeFilter = enabled;

@@ -1,5 +1,4 @@
 #include "Stepper.h"
-#include <avr/wdt.h>
 #include "Diagnostics.h"
 #include <SPI.h>
 #include "DW1000Ranging.h"
@@ -105,10 +104,11 @@ void inactiveDevice(DW1000Device *device)
 
 void pollCalibrationButton()
 {
-	if (digitalRead(BTN1_PIN) == HIGH && millis()-CalibrationTimer > BTN_CD)
+	if (digitalRead(BTN1_PIN) == HIGH)// && millis()-CalibrationTimer > BTN_CD)
 	{
 		EEPROM_writeFloat(CALIBRATION_FLAG,0.0);
-		CalibrationTimer = millis();
+		//CalibrationTimer = millis();
+		DW1000Ranging.resetState();
 		// Serial.print("Calibration button pressed. Timer: ");
 		// Serial.println(CalibrationTimer);
 	}

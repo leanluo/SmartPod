@@ -96,14 +96,14 @@ void updateDiagnostics(uint8_t state)
             digitalWrite(LED3_PIN, led3state);
         }
     // Ready 2 state
-    } else if (state == STATE_CALIB2) {
+    } else if (state == STATE_READY2 || state == STATE_PRECALIB) {
         // led 1 on
         if (!led1state) {
             led1state = true;
             digitalWrite(LED1_PIN, led1state);
         }
         // led 2 on
-        if (!led2state) {
+        if (!led2state) {   // Era !led2state en vez de true
             led2state = true;
             digitalWrite(LED2_PIN, led2state);
         }
